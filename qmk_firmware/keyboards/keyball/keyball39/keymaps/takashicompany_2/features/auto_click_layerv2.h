@@ -1,28 +1,26 @@
-/*
-Copyright 2023 @takashicompany
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#include QMK_KEYBOARD_H
-#include "quantum.h"
-//#include "features/cursorkey_hold_macros.h"
-
-/////////////////////////////
-/// miniZoneの実装 ここから ///
-////////////////////////////
-
+/* Copyright 2023 kamidai (@d_kamiichi)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * -------------------------------------------------------------------
+ *
+ * 参考文献：
+ * - 以下のリソースを参考にしました：
+ *   https://zenn.dev/takashicompany/articles/69b87160cda4b9
+ *
+ */
+ 
 enum custom_keycodes {
     KC_MY_BTN1 = SAFE_RANGE,
     KC_MY_BTN2,
@@ -32,13 +30,7 @@ enum custom_keycodes {
     KC_TO_CLICKABLE_DEC,
     KC_SCROLL_DIR_V,
     KC_SCROLL_DIR_H,
-
-    KC_MY_UP,
-    KC_MY_DOWN,
-    KC_MY_LEFT,
-    KC_MY_RIGHT
 };
-
 
 enum click_state {
     NONE = 0,
@@ -134,7 +126,7 @@ bool is_clickable_mode(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    static uint16_t arrow_key_timer;　//追加
+    
     switch (keycode) {
         case KC_MY_BTN1:
         case KC_MY_BTN2:
@@ -230,65 +222,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
                 disable_click_layer();
             }
-        // 矢印キーの処理
-        case KC_MY_UP:
-        case KC_MY_DOWN:
-        case KC_MY_LEFT:
-        case KC_MY_RIGHT:
-            if (record->event.pressed) {
-                arrow_key_timer = timer_read();
-            } else {
-                if (timer_elapsed(arrow_key_timer) < ARROW_KEY_TAPPING_TERM) {
-                    // 短押し時の動作
-                    switch (keycode) {
-                        case KC_MY_UP:
-                            tap_code(KC_UP);
-                            break;
-                        case KC_MY_DOWN:
-                            tap_code(KC_DOWN);
-                            break;
-                        case KC_MY_LEFT:
-                            tap_code(KC_LEFT);
-                            break;
-                        case KC_MY_RIGHT:
-                            tap_code(KC_RIGHT);
-                            break;
-                    }
-                } else {
-                    // 長押し時の動作
-                    switch (keycode) {
-                        case KC_MY_UP:
-                            register_code(KC_UP);
-                            break;
-                        case KC_MY_DOWN:
-                            register_code(KC_DOWN);
-                            break;
-                        case KC_MY_LEFT:
-                            register_code(KC_LEFT);
-                            break;
-                        case KC_MY_RIGHT:
-                            register_code(KC_RIGHT);
-                            break;
-                    }
-                    unregister_code(keycode);
-                }
-            }
-            return false; // キープロセスを停止
-
+        
     }
    
     return true;
 }
 
-
+// マウスレポートを受け取り、それに基づいて様々なアクションを実行する関数
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    int16_t current_x = mouse_report.x;
-    int16_t current_y = mouse_report.y;
+    int16_t current_x = mouse_report.x;// 現在のマウスのX座標
+    int16_t current_y = mouse_report.y;// 現在のマウスのY座標
     int16_t current_h = 0;
     int16_t current_v = 0;
-
+    // マウスが動いているかどうかチェック
     if (current_x != 0 || current_y != 0) {
-        
+        // マウスが動いたときのアクションを各状態ごとに制御する
         switch (state) {
             case CLICKABLE:
                 click_timer = timer_read();
@@ -401,85 +349,3 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 
     return mouse_report;
 }
-
-/////////////////////////////
-/// miniZoneの実装 ここまで ///
-////////////////////////////
-
-#ifdef OLED_ENABLE
-
-#    include "lib/oledkit/oledkit.h"
-void oledkit_render_info_user(void) {
-    keyball_oled_render_keyinfo();
-    keyball_oled_render_ballinfo();
-    keyball_oled_render_layerinfo();
-}
-#endif
-
-/*
-void oledkit_render_info_user(void) {
-    keyball_oled_render_keyinfo();
-    keyball_oled_render_ballinfo();
-    
-    oled_write_P(PSTR("Layer:"), false);
-    oled_write(get_u8_str(get_highest_layer(layer_state), ' '), false);
-    oled_write_P(PSTR(" MV:"), false);
-    oled_write(get_u8_str(mouse_movement, ' '), false);
-    oled_write_P(PSTR("/"), false);
-    oled_write(get_u8_str(user_config.to_clickable_movement, ' '), false);
-}
-#endif
-*/
-
-// clang-format off
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  // keymap for default
-  LAYOUT_universal(
-    KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                            KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     ,
-    KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                            KC_H     , KC_J     , KC_K     , KC_L     , KC_SCLN  ,
-    KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     ,                            KC_N     , KC_M     , KC_COMM  , KC_DOT   , KC_SLSH  ,
-    KC_LCTL  , KC_LGUI  , KC_LALT  ,LT(1,KC_LNG2),LT(2,KC_SPC),LT(3,KC_LNG1),KC_BSPC,LT(2,KC_ENT),LT(1,KC_LNG2),KC_RALT,KC_RGUI, KC_RSFT
-  ),
-
-  LAYOUT_universal(
-    S(KC_Q)   , S(KC_W) , S(KC_E)  , S(KC_R)  , S(KC_T)  ,                            S(KC_Y)  , S(KC_U)  , S(KC_I)  , S(KC_O)  , S(KC_P)  ,
-    S(KC_A)   , S(KC_S) , S(KC_D)  , S(KC_F)  , S(KC_G)  ,                            S(KC_H)  , S(KC_J)  , S(KC_K)  , S(KC_L)  , KC_QUOT  ,
-    S(KC_Z)   , S(KC_X) , S(KC_C)  , S(KC_V)  , S(KC_B)  ,                            S(KC_N)  , S(KC_M)  ,S(KC_COMM), S(KC_DOT),S(KC_SLSH),
-    KC_LCTL   , KC_LGUI , KC_LALT  , _______  , _______  , _______  ,      _______  , _______  , _______  , KC_RALT  , KC_RGUI  , KC_RSFT
-  ),
-
-  LAYOUT_universal(
-    KC_MY_UP  , KC_7    , KC_8     , KC_9     , _______  ,                            _______  , KC_LEFT  , KC_UP    , KC_RGHT  , _______  ,
-    _______   , KC_4    , KC_5     , KC_6     ,S(KC_SCLN),                            KC_PGUP  , KC_BTN1  , KC_DOWN  , KC_BTN2  , KC_BTN3  ,
-    _______   , KC_1    , KC_2     , KC_3     ,S(KC_MINS),                            KC_PGDN  , _______  , _______  , _______  , _______  ,
-    _______   , KC_0    , KC_DOT   , _______  , _______  , _______  ,      KC_DEL   , _______  , _______  , _______  , _______  , _______
-  ),
-
-  LAYOUT_universal(
-    RGB_TOG  , _______  , _______  , _______  ,  _______  ,                           RGB_M_P  , RGB_M_B  , RGB_M_R  , RGB_M_SW , RGB_M_SN ,
-    RGB_MOD  , RGB_HUI  , RGB_SAI  , RGB_VAI  ,  SCRL_DVI ,                           RGB_M_K  , RGB_M_X  , RGB_M_G  , RGB_M_T  , RGB_M_TW ,
-    RGB_RMOD , RGB_HUD  , RGB_SAD  , RGB_VAD  ,  SCRL_DVD ,                           CPI_D1K  , CPI_D100 , CPI_I100 , CPI_I1K  , KBC_SAVE ,
-    QK_BOOT    , KBC_RST  , _______  , _______  ,  _______  , _______  ,     _______  , _______  , _______  , _______  , KBC_RST  , QK_BOOT
-  ),
-
-  LAYOUT_universal(
-    _______  , _______  , _______  , _______  , _______  ,                            _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  ,                            _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  ,                            _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  , _______  ,      _______ ,  _______  , _______  , _______  , _______  , _______  
-  ),
-
-  LAYOUT_universal(
-    _______  , _______  , _______  , _______  , _______  ,                            _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  ,                            _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  ,                            _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  , _______  ,      _______ ,  _______  , _______  , _______  , _______  , _______  
-  ),
-
-  LAYOUT_universal(
-    _______  , _______  , _______  , _______  , _______  ,                            _______  , _______  , _______  , _______  , _______  ,
-    _______  , KC_MY_BTN2, KC_MY_SCR, KC_MY_BTN1, KC_TRNS,                            KC_TRNS, KC_MY_BTN1, KC_MY_SCR, KC_MY_BTN3, _______  ,
-    _______  , _______  , _______  , _______  , _______  ,                            _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  , _______  ,      _______ ,  _______  , _______  , _______  , _______  , _______  
-  )
-};

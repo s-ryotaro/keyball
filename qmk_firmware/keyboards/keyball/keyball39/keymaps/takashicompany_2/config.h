@@ -45,6 +45,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define OLED_TIMEOUT 30000 // ミリ秒ー＞30秒 1/100
 #define TAPPING_TERM 100 // レイヤー切り替えキーなどの長押しまでの判定時間(ミリ秒)デフォ180?
+#define ARROW_KEY_TAPPING_TERM 65
+
 
 #define KEYBALL_CPI_DEFAULT 1100 // マウス速度 (default: 500)
 #define KEYBALL_SCROLL_D  スクロール速度 (default: 4)

@@ -166,6 +166,33 @@ void pointing_device_driver_set_cpi(uint16_t cpi) {
     keyball_set_cpi(cpi);
 }
 
+//マウススピードの調整　追加
+static void adjust_mouse_speed (keyball_motion_t *m) {
+    int16_t movement_size = abs(m->x) + abs(m->y);
+
+    float speed_multiplier= 1.0;
+    if (movement_size > 60) {
+        speed_multiplier =3.0;
+    }else if (movement_size > 30) {
+        speed_multiplier=1.5;
+    }else if (movement_size>5) {
+        speed_multiplier =1.0;
+    }else if (movement_size > 4){
+        speed_multiplier =0.9;
+    }else if (movement_size > 3) {
+        speed_multiplier= 0.7;
+    }else if (movement_size > 2) {
+      speed_multiplier = 0.5;
+    }else if (movement_size >1){
+      speed_multiplier = 0.2;
+    }
+
+    m->x = clip2int8((int16_t)(m->x * speed_multiplier));
+    m->y = clip2int8((int16_t)(m->y * speed_multiplier));
+}
+//マウススピードの調整　追加ここまで
+
+/*
 static void motion_to_mouse_move(keyball_motion_t *m, report_mouse_t *r, bool is_left) {
 #if KEYBALL_MODEL == 61 || KEYBALL_MODEL == 39 || KEYBALL_MODEL == 147 || KEYBALL_MODEL == 44
     r->x = clip2int8(m->y);
@@ -184,7 +211,128 @@ static void motion_to_mouse_move(keyball_motion_t *m, report_mouse_t *r, bool is
     m->x = 0;
     m->y = 0;
 }
+*/
+__attribute__((weak)) void keyball_on_apply_motion_to_mouse_move(keyball_motion_t *m, report_mouse_t *r, bool is_left) {
+#if KEYBALL_MODEL == 61 || KEYBALL_MODEL == 39 || KEYBALL_MODEL == 147 || KEYBALL_MODEL == 44
+    r->x = clip2int8(m->y);
+    r->y = clip2int8(m->x);
+    if (is_left) {
+        r->x = -r->x;
+        r->y = -r->y;
+    }
+#elif KEYBALL_MODEL == 46
+    r->x = clip2int8(m->x);
+    r->y = -clip2int8(m->y);
+#else
+#    error("unknown Keyball model")
+#endif
+    // clear motion
+    m->x = 0;
+    m->y = 0;
+}
 
+__attribute__((weak)) void keyball_on_apply_motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t *r, bool is_left) {
+    // consume motion of trackball.
+    int16_t div = 1 << (keyball_get_scroll_div() - 1);
+    int16_t x = divmod16(&m->x, div);
+    int16_t y = divmod16(&m->y, div);
+
+    // apply to mouse report.
+#if KEYBALL_MODEL == 61 || KEYBALL_MODEL == 39 || KEYBALL_MODEL == 147 || KEYBALL_MODEL == 44
+    r->h = clip2int8(y);
+    r->v = -clip2int8(x);
+    if (is_left) {
+        r->h = -r->h;
+        r->v = -r->v;
+    }
+#elif KEYBALL_MODEL == 46
+    r->h = clip2int8(x);
+    r->v = clip2int8(y);
+#else
+#    error("unknown Keyball model")
+#endif
+
+    // Scroll snapping
+#if KEYBALL_SCROLLSNAP_ENABLE == 1
+    // Old behavior up to 1.3.2)
+    uint32_t now = timer_read32();
+    if (r->h != 0 || r->v != 0) {
+        keyball.scroll_snap_last = now;
+    } else if (TIMER_DIFF_32(now, keyball.scroll_snap_last) >= KEYBALL_SCROLLSNAP_RESET_TIMER) {
+        keyball.scroll_snap_tension_h = 0;
+    }
+    if (abs(keyball.scroll_snap_tension_h) < KEYBALL_SCROLLSNAP_TENSION_THRESHOLD) {
+        keyball.scroll_snap_tension_h += y;
+        r->h = 0;
+    }
+#elif KEYBALL_SCROLLSNAP_ENABLE == 2
+    // New behavior
+    switch (keyball_get_scrollsnap_mode()) {
+        case KEYBALL_SCROLLSNAP_MODE_VERTICAL:
+            r->h = 0;
+            break;
+        case KEYBALL_SCROLLSNAP_MODE_HORIZONTAL:
+            r->v = 0;
+            break;
+        default:
+            // pass by without doing anything
+            break;
+    }
+#endif
+}
+
+static void motion_to_mouse(keyball_motion_t *m, report_mouse_t *r, bool is_left, bool as_scroll) {
+    if (as_scroll) {
+        keyball_on_apply_motion_to_mouse_scroll(m, r, is_left);
+    } else {
+        keyball_on_apply_motion_to_mouse_move(m, r, is_left);
+    }
+}
+
+static inline bool should_report(void) {
+    uint32_t now = timer_read32();
+#if defined(KEYBALL_REPORTMOUSE_INTERVAL) && KEYBALL_REPORTMOUSE_INTERVAL > 0
+    // throttling mouse report rate.
+    static uint32_t last = 0;
+    if (TIMER_DIFF_32(now, last) < KEYBALL_REPORTMOUSE_INTERVAL) {
+        return false;
+    }
+    last = now;
+#endif
+#if defined(KEYBALL_SCROLLBALL_INHIVITOR) && KEYBALL_SCROLLBALL_INHIVITOR > 0
+    if (TIMER_DIFF_32(now, keyball.scroll_mode_changed) < KEYBALL_SCROLLBALL_INHIVITOR) {
+        keyball.this_motion.x = 0;
+        keyball.this_motion.y = 0;
+        keyball.that_motion.x = 0;
+        keyball.that_motion.y = 0;
+    }
+#endif
+    return true;
+}
+
+report_mouse_t pointing_device_driver_get_report(report_mouse_t rep) {
+    // fetch from optical sensor.
+    if (keyball.this_have_ball) {
+        pmw3360_motion_t d = {0};
+        if (pmw3360_motion_burst(&d)) {
+            ATOMIC_BLOCK_FORCEON {
+                keyball.this_motion.x = add16(keyball.this_motion.x, d.x);
+                keyball.this_motion.y = add16(keyball.this_motion.y, d.y);
+            }
+        }
+    }
+    // report mouse event, if keyboard is primary.
+    if (is_keyboard_master() && should_report()) {
+        // modify mouse report by PMW3360 motion.
+        motion_to_mouse(&keyball.this_motion, &rep, is_keyboard_left(), keyball.scroll_mode);
+        motion_to_mouse(&keyball.that_motion, &rep, !is_keyboard_left(), keyball.scroll_mode ^ keyball.this_have_ball);
+        // store mouse report for OLED.
+        keyball.last_mouse = rep;
+    }
+    return rep;
+}
+
+/*
 static void motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t *r, bool is_left) {
     // consume motion of trackball.
     int16_t div = 1 << (keyball_get_scroll_div() - 1);
@@ -271,6 +419,8 @@ report_mouse_t pointing_device_driver_get_report(report_mouse_t rep) {
     }
     return rep;
 }
+*/
+
 
 //////////////////////////////////////////////////////////////////////////////
 // Split RPC
@@ -630,10 +780,6 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
             case KBC_RST:
                 keyball_set_cpi(0);
                 keyball_set_scroll_div(0);
-#ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
-                set_auto_mouse_enable(false);
-                set_auto_mouse_timeout(AUTO_MOUSE_TIME);
-#endif
                 break;
             case KBC_SAVE: {
                 keyball_config_t c = {
@@ -696,25 +842,3 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
     return true;
 }
-
-// Disable functions keycode_config() and mod_config() in keycode_config.c to
-// reduce size.  These functions are provided for customizing magic keycode.
-// These two functions are mostly unnecessary if `MAGIC_KEYCODE_ENABLE = no` is
-// set.
-//
-// If `MAGIC_KEYCODE_ENABLE = no` and you want to keep these two functions as
-// they are, define the macro KEYBALL_KEEP_MAGIC_FUNCTIONS.
-//
-// See: https://docs.qmk.fm/#/squeezing_avr?id=magic-functions
-//
-#if !defined(MAGIC_KEYCODE_ENABLE) && !defined(KEYBALL_KEEP_MAGIC_FUNCTIONS)
-
-uint16_t keycode_config(uint16_t keycode) {
-    return keycode;
-}
-
-uint8_t mod_config(uint8_t mod) {
-    return mod;
-}
-
-#endif
