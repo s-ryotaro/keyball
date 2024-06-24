@@ -134,7 +134,7 @@ bool is_clickable_mode(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    static uint16_t arrow_key_timer;　//追加
+    static uint16_t arrow_key_timer;//追加
     switch (keycode) {
         case KC_MY_BTN1:
         case KC_MY_BTN2:
