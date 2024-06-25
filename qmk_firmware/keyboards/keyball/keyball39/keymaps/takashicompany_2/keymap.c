@@ -211,7 +211,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 
-         default:
+         /*default:
             if  (record->event.pressed) {
                 
                 if (state == CLICKING || state == SCROLLING)
@@ -229,7 +229,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
 
                 disable_click_layer();
-            }
+            }*/
+
         // 矢印キーの処理
         case KC_MY_UP:
         case KC_MY_DOWN:
@@ -274,7 +275,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             return false; // キープロセスを停止
+            
+        default:
+            if (record->event.pressed) {
+                if (state == CLICKING || state == SCROLLING) {
+                    enable_click_layer();
+                    return false;
+                }
+                
+                for (int i = 0; i < sizeof(ignore_disable_mouse_layer_keys) / sizeof(ignore_disable_mouse_layer_keys[0]); i++) {
+                    if (keycode == ignore_disable_mouse_layer_keys[i]) {
+                        return true;
+                    }
+                }
 
+                disable_click_layer();
+            }
+            break; // defaultケースを抜けるためのbreakを追加
     }
    
     return true;

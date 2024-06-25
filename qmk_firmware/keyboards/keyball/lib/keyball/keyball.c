@@ -178,13 +178,13 @@ static void adjust_mouse_speed (keyball_motion_t *m) {
     } else if (movement_size > 5) {
         speed_multiplier =1.0;
     } else if (movement_size > 4) {
-        speed_multiplier =0.9;
+        speed_multiplier =0.7;
     } else if (movement_size > 3) {
-        speed_multiplier = 0.7;
-    } else if (movement_size > 2) {
         speed_multiplier = 0.5;
+    } else if (movement_size > 2) {
+        speed_multiplier = 0.25;
     } else if (movement_size > 1) {
-        speed_multiplier = 0.2;
+        speed_multiplier = 0.07;
     }
 
     m->x = clip2int8((int16_t)(m->x * speed_multiplier));
@@ -801,10 +801,10 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
                 add_cpi(-1);
                 break;
             case CPI_I1K:
-                add_cpi(10);
+                add_cpi(5);//デフォ10 CPIを変更するキーを500単位で変更できるように修正
                 break;
             case CPI_D1K:
-                add_cpi(-10);
+                add_cpi(-5);//デフォ10 CPIを変更するキーを500単位で変更できるように修正
                 break;
 
             case SCRL_TO:
