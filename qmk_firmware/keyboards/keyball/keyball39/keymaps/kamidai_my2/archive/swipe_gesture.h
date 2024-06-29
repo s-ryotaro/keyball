@@ -17,7 +17,7 @@
 void process_swipe_gesture(int16_t x, int16_t y)
 {
   // カーソル移動
-  if (current_keycode == LEFT_CTRL)
+  if (current_keycode == KC_D)
   {
     if (my_abs(x) > my_abs(y))
     {
@@ -45,7 +45,7 @@ void process_swipe_gesture(int16_t x, int16_t y)
   }
 
   // フリック風
-  if (current_keycode == KC_LEFT_SHIFT)
+  if (current_keycode == KC_T)
   {
     tap_code(KC_BSPC);
 
@@ -53,12 +53,12 @@ void process_swipe_gesture(int16_t x, int16_t y)
     {
       if (x > 0)
       { // swipe right
-        tap_code(LANGUAGE_1);
+        tap_code(KC_S);
       }
 
       else
       { // swipe left
-        tap_code(LANGUAGE_2);
+        tap_code(KC_W);
       }
     }
 
