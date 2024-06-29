@@ -448,7 +448,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
       // 複数の修飾キーが押された場合、LEDをオフにし、スワイプ状態を解除する
       if (mod_pressed) {
-        rgblight_sethsv(HSV_OFF);
+        //rgblight_sethsv(HSV_OFF);
         state = NONE;
         return true;  // キーのデフォルトの動作を続行させる
       }
