@@ -180,11 +180,13 @@ static void adjust_mouse_speed (keyball_motion_t *m) {
     } else if (movement_size > 4) {
         speed_multiplier =0.7;
     } else if (movement_size > 3) {
-        speed_multiplier = 0.5;
+        speed_multiplier = 0.1; //デフォルト0.5 だよ
+    /*
     } else if (movement_size > 2) {
         speed_multiplier = 0.25;
     } else if (movement_size > 1) {
         speed_multiplier = 0.07;
+    */
     }
 
     m->x = clip2int8((int16_t)(m->x * speed_multiplier));
