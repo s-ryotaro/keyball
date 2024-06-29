@@ -278,7 +278,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
 
         if (is_ctrl_active) {
-          unregister_code(KC_LCTRL);
+          unregister_code(KC_LCTL);
           is_ctrl_active = false;
         }
       }

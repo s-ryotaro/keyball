@@ -65,7 +65,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TAB   , KC_W     , KC_E     , KC_R     , KC_T     ,                            KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     ,
     KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                            KC_H     , KC_J     , KC_K     , KC_L     , KC_F5    ,
     KC_Z     , KC_X     , KC_C     ,LT(2,KC_V),SFT_T(KC_B),                         SFT_T(KC_N), KC_M     , KC_COMMA , KC_DOT   , KC_SLASH ,
-    LT(1,KC_LANG2),ALT_T(KC_F13),LT(3,KC_ESC),CMD_T(KC_SPACE),CTL_T(KC_Y),LT(5,KC_Q),    KC_BSPC,CMD_T(KC_ENT),_______,_______,_______,LT(1,KC_LANG1)
+    LT(1,KC_LNG2),ALT_T(KC_F13),LT(3,KC_ESC),CMD_T(KC_SPACE),CTL_T(KC_Y),LT(5,KC_Q),    KC_BSPC,CMD_T(KC_ENT),_______,_______,_______,LT(1,KC_LNG1)
   ),
 
   [1] = LAYOUT_universal(
@@ -76,16 +76,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 
   [2] = LAYOUT_universal(
-    _______  , KC_7     , KC_8     , KC_9     , _______  ,                            S(KC_4)  , KC_7     , KC_8     , KC_9     ,KC_BSLASH ,
+    _______  , KC_7     , KC_8     , KC_9     , _______  ,                            S(KC_4)  , KC_7     , KC_8     , KC_9     ,KC_SLASH ,
     KC_0     , KC_4     , KC_5     , KC_6     , _______  ,                            _______  , KC_4     , KC_5     , KC_6     , S(KC_5)  ,
-    _______  , KC_1     , KC_2     , KC_3     , _______  ,                    SFT_T(KC_NUMLOCK), KC_1     , KC_2     , KC_3     , _______  ,
+    _______  , KC_1     , KC_2     , KC_3     , _______  ,                    SFT_T(KC_NUM_LOCK), KC_1     , KC_2     , KC_3     , _______  ,
     _______  , _______  , _______  , _______  , _______  , _______  ,      _______  , KC_0     , _______  , _______  , _______  , _______  
   ),
 
   [3] = LAYOUT_universal(
     _______ , S(KC_2)   , S(KC_3)  , KC_QUOTE ,S(KC_QUOTE),                           _______  ,S(KC_RBRC), KC_RBRC  ,S(KC_EQUAL),S(KC_8)  ,
-    S(KC_GRAVE),S(KC_MINUS),S(KC_COMMA),S(KC_7),S(KC_BSLASH),                        S(KC_LBRC), KC_LBRC  , S(KC_0)  , KC_MINUS , KC_EQUAL ,
-    A(KC_BSLASH),S(KC_6), _______  ,S(KC_DOT) ,SFT_T_S_KC_SCOLON,               SFT_T(KC_GRAVE), S(KC_9)  , S(KC_1)  ,S(KC_SLASH),KC_SCOLON,
+    S(KC_GRAVE),S(KC_MINUS),S(KC_COMMA),S(KC_7),S(KC_SLASH),                        S(KC_LBRC), KC_LBRC  , S(KC_0)  , KC_MINUS , KC_EQUAL ,
+    A(KC_SLASH),S(KC_6), _______  ,S(KC_DOT) ,SFT_T_S_KC_COLON,               SFT_T(KC_GRAVE), S(KC_9)  , S(KC_1)  ,S(KC_SLASH),KC_SCOLON,
     _______  , _______  , _______  , _______  , _______  , _______  ,      _______  , _______  , _______  , _______  , _______  , _______
   ),
 
@@ -100,7 +100,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______  , _______  , _______  , _______  , _______  ,                            _______  , SCRL_DVI , CPI_I100 , _______  , RGB_TOG  ,
     _______  , _______  , _______  , _______  , _______  ,                            SCRL_DVD , CPI_D100 , _______  , _______  , _______  ,
     _______  , _______  , _______  , _______  , _______  ,                            _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  , _______  ,        RESET  , KBC_RST  , _______  , _______  , _______  , _______  
+    _______  , _______  , _______  , _______  , _______  , _______  ,        RTSEN  , KBC_RST  , _______  , _______  , _______  , _______  
   ),
 
   [6] = LAYOUT_universal(
