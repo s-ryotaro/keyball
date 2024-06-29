@@ -116,7 +116,8 @@ layer_state_t layer_state_set_user(layer_state_t state) {
   // レイヤーが1または3の場合、スクロールモードが有効になる
   keyball_set_scroll_mode(get_highest_layer(state) == 1 || get_highest_layer(state) == 3);
   // keyball_set_scroll_mode(get_highest_layer(state) == 1);
-
+  
+  /*
   // レイヤーとLEDを連動させる
   switch (get_highest_layer(state)) {
     case click_layer:
@@ -135,7 +136,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     default:
       rgblight_sethsv(HSV_OFF);
   }
-
+  */
   return state;
 }
 
