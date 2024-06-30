@@ -42,7 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DYNAMIC_KEYMAP_LAYER_COUNT 7
 
 #define KEYBALL_CPI_DEFAULT 700       // 光学センサーPMW3360DM の解像度 (CPI) の規定値
-#define KEYBALL_SCROLL_DIV_DEFAULT 4  // スクロール速度の規定値
+#define KEYBALL_SCROLL_DIV_DEFAULT 3  // スクロール速度の規定値 デフォ4
 
 // ファームウェアのサイズを削減
 #define NO_ACTION_ONESHOT  // 392バイト
