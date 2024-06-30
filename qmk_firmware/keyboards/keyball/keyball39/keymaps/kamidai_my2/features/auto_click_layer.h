@@ -46,6 +46,7 @@ int16_t mouse_move_count_ratio = 5;   // ポインターの動きを再生する
 
 // Modifierが絡むときの挙動が理想とは違ったので、一旦コメントアウト
 // const uint16_t ignore_disable_mouse_layer_keys[] = {KC_LANG1, KC_LANG2}; // この配列で指定されたキーはマウスレイヤー中に押下してもマウスレイヤーを解除しない
+const uint16_t ignore_disable_mouse_layer_keys[] = {KC_MY_BTN3, KC_MY_BTN4,KC_MY_BTN5}; // 240530 追加
 
 int16_t mouse_movement;
 

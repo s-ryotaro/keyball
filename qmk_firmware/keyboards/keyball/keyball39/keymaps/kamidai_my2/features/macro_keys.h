@@ -48,7 +48,8 @@ enum custom_keycodes {
   // CUSTOM_S0,                                    //
   // KC_ALT_BTN1,                                  //
   // select_BRC,
-  // CMD_SCRL,
+  // CMD_SCRL,                                  //
+   
 };
 
 // マクロキーの処理を行う関数

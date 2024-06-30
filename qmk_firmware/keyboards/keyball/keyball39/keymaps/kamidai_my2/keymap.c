@@ -49,8 +49,8 @@
 
 #include "utils/functions.h"
 
-//#include "features/swipe_gesture.h"
-#include "features/swipe_gesture_test.h"
+#include "features/swipe_gesture.h"
+//#include "features/swipe_gesture_test.h"
 
 #include "features/auto_click_layer.h"
 // #include "features/back_to_layer0_btn1.h"
